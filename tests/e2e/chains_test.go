@@ -28,10 +28,10 @@ type ChainTestSuite struct {
 }
 
 func (suite *ChainTestSuite) SetupTest() {
-	chainClientA, err := client.NewBesuClient("http://127.0.0.1:8645", clienttypes.BesuIBFT2Client)
+	chainClientA, err := client.NewBesuClient("http://127.0.0.1:8545", clienttypes.BesuIBFT2Client)
 	suite.Require().NoError(err)
 
-	chainClientB, err := client.NewBesuClient("http://127.0.0.1:8745", clienttypes.BesuIBFT2Client)
+	chainClientB, err := client.NewBesuClient("http://127.0.0.1:9545", clienttypes.BesuIBFT2Client)
 	suite.Require().NoError(err)
 
 	ibcID := uint64(time.Now().UnixNano())

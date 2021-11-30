@@ -97,14 +97,22 @@ contract IBFT2Client is IClient {
         bytes[] memory validators;
         bool ok;
 
+        // require(false, "must be failed"); // 1 (reached)
+
         (clientState, ok) = unmarshalClientState(clientStateBytes);
         require(ok, "client state is invalid");
 
-        (header, ok) = unmarshalHeader(headerBytes);
+        // require(false, "must be failed"); // 4 (reached)
+
+        (header, ok) = unmarshalHeader(headerBytes); // bug is here
         require(ok, "header is invalid");
+
+        // require(false, "must be failed"); // 3 (unreached)
 
         (consensusState, ok) = getConsensusState(host, clientId, header.trusted_height);
         require(ok, "consensusState not found");
+
+        // require(false, "must be failed"); // 2 (unreached)
 
         //// check validity ////
         ParsedBesuHeader memory parsedHeader = parseBesuHeader(header);
@@ -144,7 +152,7 @@ contract IBFT2Client is IClient {
         if (keccak256(abi.encodePacked(anyHeader.type_url)) != pts.header) {
             return (header, false);
         }
-        return (Header.decode(anyHeader.value), true);
+        return (Header.decode(anyHeader.value), true); // XXX bug is here
     }
 
     function unmarshalClientState(bytes memory bz) internal view returns (ClientState.Data memory clientState, bool ok) {

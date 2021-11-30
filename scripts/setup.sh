@@ -37,9 +37,9 @@ function chain() {
         exit 1
     fi
 
-    pushd ./chains && docker-compose up -d ${network} && popd
+    # pushd ./chains && docker-compose up -d ${network} && popd
     # XXX Wait for the first block to be created
-    sleep 3
+    # sleep 3
     ${TRUFFLE} compile
     ${TRUFFLE} migrate --reset --compile-none --network=${network}
     ${TRUFFLE} exec ./scripts/confgen.js --network=${network}
@@ -77,8 +77,17 @@ function testtwochainz {
     after_common
 }
 
+function besu4 {
+    make -C ./chains/besu4 clean generate-blockchain-config network
+
+    pushd ./chains && docker-compose up -d testchain1 && popd
+
+    testtwochainz
+}
+
 function down {
-    pushd ./chains/besu && docker-compose down && popd
+    pushd ./chains && docker-compose down && popd
+    pushd ./chains/besu4 && docker-compose down && popd
 }
 
 subcommand="$1"
@@ -93,6 +102,9 @@ case $subcommand in
         ;;
     testtwochainz)
         testtwochainz
+        ;;
+    besu4)
+        besu4
         ;;
     down)
         down
