@@ -321,6 +321,7 @@ func (chain *Chain) ConstructIBFT2MsgUpdateClient(counterparty *Chain, clientID 
 		TrustedHeight:     trustedHeight,
 		AccountStateProof: cs.ETHProof().AccountProofRLP,
 	}
+	fmt.Printf("seals=%v ", len(header.Seals))
 	bz, err := MarshalWithAny(&header)
 	if err != nil {
 		panic(err)
@@ -376,6 +377,7 @@ func (chain *Chain) CreateIBFT2Client(ctx context.Context, counterparty *Chain) 
 }
 
 func (chain *Chain) UpdateIBFT2Client(ctx context.Context, counterparty *Chain, clientID string) error {
+	fmt.Printf("UpdateIBFT2Client: chainID=%v ", counterparty.chainID)
 	msg := chain.ConstructIBFT2MsgUpdateClient(counterparty, clientID)
 	return chain.WaitIfNoError(ctx)(
 		chain.IBCHandler.UpdateClient(chain.TxOpts(ctx, RelayerKeyIndex), msg),
@@ -961,8 +963,10 @@ func (chain *Chain) WaitForReceiptAndGet(ctx context.Context, tx *gethtypes.Tran
 		return err
 	}
 	if rc.Status() == 1 {
+		fmt.Printf("GasUsed=%v\n", rc.GasUsed())
 		return nil
 	} else {
+		fmt.Println("tx failed")
 		return fmt.Errorf("failed to call transaction: err='%v' rc='%v' reason='%v'", err, rc, rc.RevertReason())
 	}
 }
