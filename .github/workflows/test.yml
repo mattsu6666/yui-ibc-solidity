@@ -2,8 +2,8 @@ name: Test
 on: [push, pull_request]
 jobs:
 
-  test:
-    name: Test
+  besu4:
+    name: 4 validators
     runs-on: ubuntu-latest
     steps:
 
@@ -28,14 +28,11 @@ jobs:
     - name: apply the patch
       run: sed -i -e 's/20000,/200000,/' ./node_modules/@trufflesuite/web3-provider-engine/subproviders/rpc.js
 
-    - name: Setup ganache-cli
-      run: NO_GEN_CODE=1 ./scripts/setup.sh development
+    - name: compile
+      run: npx truffle compile
 
-    - name: Integration test
-      run: make integration-test
-
-    - name: Setup chains for E2E test
-      run: NO_GEN_CODE=1 ./scripts/setup.sh testtwochainz
+    - name: Setup 4 besu nodes
+      run: NO_GEN_CODE=1 ./scripts/setup.sh besu4
 
     - name: E2E test
       run: make e2e-test
