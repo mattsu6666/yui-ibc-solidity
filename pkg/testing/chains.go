@@ -321,7 +321,13 @@ func (chain *Chain) ConstructIBFT2MsgUpdateClient(counterparty *Chain, clientID 
 		TrustedHeight:     trustedHeight,
 		AccountStateProof: cs.ETHProof().AccountProofRLP,
 	}
-	fmt.Printf("seals=%v ", len(header.Seals))
+	var seals int
+	for _, seal := range cs.ParsedHeader.Seals {
+		if len(seal) > 0 {
+			seals++
+		}
+	}
+	fmt.Printf("validators=%v(seals=%v) ", len(header.Seals), seals)
 	bz, err := MarshalWithAny(&header)
 	if err != nil {
 		panic(err)
