@@ -162,6 +162,12 @@ contract IBCHost {
         return (channels[portId][channelId], channels[portId][channelId].state != Channel.State.STATE_UNINITIALIZED_UNSPECIFIED);
     }
 
+    function validateChannel(string calldata portId, string calldata channelId, string calldata counterpartyPortId, string calldata counterpartyChannelId) external view returns (bool) {
+        return channels[portId][channelId].state == Channel.State.STATE_OPEN &&
+                keccak256(abi.encodePacked(channels[portId][channelId].counterparty.port_id)) == keccak256(abi.encodePacked(counterpartyPortId)) &&
+                keccak256(abi.encodePacked(channels[portId][channelId].counterparty.channel_id)) == keccak256(abi.encodePacked(counterpartyChannelId));
+    }
+
     // Packet
 
     function setNextSequenceSend(string calldata portId, string calldata channelId, uint64 sequence) external {
