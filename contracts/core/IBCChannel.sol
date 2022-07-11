@@ -190,7 +190,7 @@ library IBCChannel {
         host.setChannel(msg_.portId, msg_.channelId, channel);
     }
 
-    function sendPacket(IBCHost host, Packet.Data calldata packet) external {
+    function sendPacket(IBCHost host, Packet.Data calldata packet, bool optimistic) external {
         host.onlyIBCModule();
         Channel.Data memory channel;
         ConnectionEnd.Data memory connection;
@@ -204,18 +204,21 @@ library IBCChannel {
         require(channel.state == Channel.State.STATE_OPEN, "channel state must be OPEN");
         require(hashString(packet.destination_port) == hashString(channel.counterparty.port_id), "packet destination port doesn't match the counterparty's port");
         require(hashString(packet.destination_channel) == hashString(channel.counterparty.channel_id), "packet destination channel doesn't match the counterparty's channel");
-        connection = mustGetConnection(host, channel);
-        client = IBCClient.getClient(host, connection.client_id);
-        (latestHeight, found) = client.getLatestHeight(host, connection.client_id);
-        require(packet.timeout_height.isZero() || latestHeight.lt(packet.timeout_height), "receiving chain block height >= packet timeout height");
-        (latestTimestamp, found) = client.getTimestampAtHeight(host, connection.client_id, latestHeight);
-        require(found, "consensusState not found");
-        require(packet.timeout_timestamp == 0 || latestTimestamp < packet.timeout_timestamp, "receiving chain block timestamp >= packet timeout timestamp");
+
+        // if `optimistic` is false, ensure that the packet timeout doesn't exceed the timestamp of the latest client
+        if (!optimistic) {
+            connection = mustGetConnection(host, channel);
+            client = IBCClient.getClient(host, connection.client_id);
+            (latestHeight, found) = client.getLatestHeight(host, connection.client_id);
+            require(packet.timeout_height.isZero() || latestHeight.lt(packet.timeout_height), "receiving chain block height >= packet timeout height");
+            (latestTimestamp, found) = client.getTimestampAtHeight(host, connection.client_id, latestHeight);
+            require(found, "consensusState not found");
+            require(packet.timeout_timestamp == 0 || latestTimestamp < packet.timeout_timestamp, "receiving chain block timestamp >= packet timeout timestamp");
+        }
 
         nextSequenceSend = host.getNextSequenceSend(packet.source_port, packet.source_channel);
         require(nextSequenceSend > 0, "sequenceSend not found");
         require(packet.sequence == nextSequenceSend, "packet sequence != next send sequence");
-
         nextSequenceSend++;
         host.setNextSequenceSend(packet.source_port, packet.source_channel, nextSequenceSend);
         host.setPacketCommitment(packet.source_port, packet.source_channel, packet.sequence, packet);

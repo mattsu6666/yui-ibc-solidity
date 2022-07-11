@@ -110,12 +110,12 @@ contract IBCHandler {
         lookupModuleByPortId(msg_.portId).onChanCloseConfirm(msg_.portId, msg_.channelId);
     }
 
-    function sendPacket(Packet.Data calldata packet) external {
+    function sendPacket(Packet.Data calldata packet, bool optimistic) external {
         require(host.authenticateCapability(
             IBCIdentifier.channelCapabilityPath(packet.source_port, packet.source_channel),
             msg.sender
         ));
-        IBCChannel.sendPacket(host, packet);
+        IBCChannel.sendPacket(host, packet, optimistic);
         emit SendPacket(packet);
     }
 

@@ -116,7 +116,7 @@ abstract contract ICS20Transfer is Context, IICS20Transfer {
             data: FungibleTokenPacketData.encode(data),
             timeout_height: Height.Data({revision_number: 0, revision_height: timeoutHeight}),
             timeout_timestamp: 0
-        }));
+        }), false);
     }
 
     function _getEscrowAddress(string memory sourceChannel) virtual internal view returns (address) {

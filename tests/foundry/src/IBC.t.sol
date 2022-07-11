@@ -124,6 +124,20 @@ contract IBCTest {
             timeout_height: Height.Data({revision_number: 0, revision_height: 100}),
             timeout_timestamp: 0
         });
-        handler.sendPacket(packet);
+        handler.sendPacket(packet, false);
+    }
+
+    function testSendPacketOptimistically() public {
+        Packet.Data memory packet = Packet.Data({
+            sequence: 1,
+            source_port: portId,
+            source_channel: "channel-0",
+            destination_port: portId,
+            destination_channel: "channel-0",
+            data: bytes("{\"amount\": \"100\"}"),
+            timeout_height: Height.Data({revision_number: 0, revision_height: 100}),
+            timeout_timestamp: 0
+        });
+        handler.sendPacket(packet, true);
     }
 }
