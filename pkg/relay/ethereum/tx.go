@@ -2,6 +2,7 @@ package ethereum
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,7 +28,9 @@ func (c *Chain) SendMsgs(msgs []sdk.Msg) ([]byte, error) {
 		opts := c.TxOpts(ctx)
 		switch msg := msg.(type) {
 		case *clienttypes.MsgCreateClient:
+			fmt.Println("case *clienttypes.MsgCreateClient:")
 			tx, err = c.TxCreateClient(opts, msg)
+			fmt.Printf("tx: %+v\n", tx)
 		case *clienttypes.MsgUpdateClient:
 			tx, err = c.TxUpdateClient(opts, msg)
 		case *conntypes.MsgConnectionOpenInit:
